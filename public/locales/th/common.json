@@ -1,0 +1,71 @@
+{
+  "dashboard": {
+    "totalCustomers": "ลูกค้าทั้งหมด",
+    "ticketsOpen": "ตั๋วที่เปิดอยู่",
+    "campaigns": "แคมเปญ",
+    "topSpenders": "ลูกค้าที่ใช้จ่ายสูง"
+  },
+  "customers": {
+    "title": "ลูกค้า",
+    "name": "ชื่อ",
+    "phone": "โทรศัพท์",
+    "email": "อีเมล",
+    "tags": "แท็ก",
+    "lastActivity": "กิจกรรมล่าสุด",
+    "action": "การกระทำ",
+    "view": "ดู",
+    "profile": "ข้อมูลลูกค้า",
+    "products": "ประวัติสินค้า",
+    "cases": "เคสบริการ",
+    "activities": "บันทึกกิจกรรม"
+  },
+  "menu": {
+    "dashboard": "แดชบอร์ด",
+    "customers": "ลูกค้า",
+    "tickets": "ทิกเก็ต",
+    "automation": "ระบบอัตโนมัติ",
+    "leads": "ลีด"
+  },
+  "tickets": {
+    "caseId": "รหัสเคส",
+    "customer": "ลูกค้า",
+    "status": "สถานะ",
+    "issue": "ปัญหา",
+    "assignedTo": "ผู้รับผิดชอบ",
+    "createdAt": "สร้างเมื่อ",
+    "date": "วันที่",
+    "newTicket": "สร้างทิกเก็ต",
+    "description": "รายละเอียด",
+    "attachment": "ไฟล์แนบ",
+    "upload": "อัปโหลดไฟล์",
+    "create": "สร้าง",
+    "cancel": "ยกเลิก"
+  },
+  "automation": {
+    "ruleName": "ชื่อกฎ",
+    "trigger": "ทริกเกอร์",
+    "action": "การกระทำ",
+    "status": "สถานะ",
+    "conditions": "เงื่อนไข",
+    "createRule": "สร้างกฎใหม่",
+    "create": "สร้าง"
+  },
+  "leads": {
+    "new": "ใหม่",
+    "contacted": "ติดต่อแล้ว",
+    "quoted": "เสนอราคา",
+    "won": "ชนะ",
+    "lost": "แพ้",
+    "value": "มูลค่า",
+    "assigned": "ผู้รับผิดชอบ",
+    "name": "ชื่อ",
+    "contact": "การติดต่อ",
+    "source": "แหล่งที่มา",
+    "create": "สร้าง",
+    "cancel": "ยกเลิก"
+  },
+  "language": {
+    "en": "อังกฤษ",
+    "th": "ไทย"
+  }
+}

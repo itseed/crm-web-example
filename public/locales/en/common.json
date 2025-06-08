@@ -1,0 +1,71 @@
+{
+  "dashboard": {
+    "totalCustomers": "Total Customers",
+    "ticketsOpen": "Tickets Open",
+    "campaigns": "Campaigns",
+    "topSpenders": "Top Spenders"
+  },
+  "customers": {
+    "title": "Customers",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "tags": "Tags",
+    "lastActivity": "Last Activity",
+    "action": "Action",
+    "view": "View",
+    "profile": "Customer Profile",
+    "products": "Product History",
+    "cases": "Service Cases",
+    "activities": "Activity Log"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "customers": "Customers",
+    "tickets": "Tickets",
+    "automation": "Automation",
+    "leads": "Leads"
+  },
+  "tickets": {
+    "caseId": "Case ID",
+    "customer": "Customer",
+    "status": "Status",
+    "issue": "Issue",
+    "assignedTo": "Assigned To",
+    "createdAt": "Created At",
+    "date": "Date",
+    "newTicket": "New Ticket",
+    "description": "Description",
+    "attachment": "Attachment",
+    "upload": "Upload File",
+    "create": "Create",
+    "cancel": "Cancel"
+  },
+  "automation": {
+    "ruleName": "Rule Name",
+    "trigger": "Trigger",
+    "action": "Action",
+    "status": "Status",
+    "conditions": "Conditions",
+    "createRule": "Create New Rule",
+    "create": "Create"
+  },
+  "leads": {
+    "new": "New",
+    "contacted": "Contacted",
+    "quoted": "Quoted",
+    "won": "Won",
+    "lost": "Lost",
+    "value": "Value",
+    "assigned": "Assigned",
+    "name": "Name",
+    "contact": "Contact",
+    "source": "Source",
+    "create": "Create",
+    "cancel": "Cancel"
+  },
+  "language": {
+    "en": "English",
+    "th": "Thai"
+  }
+}

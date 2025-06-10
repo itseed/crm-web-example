@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Select } from 'antd';
-import { useRouter, usePathname } from 'next-intl/client';
-import { useLocale } from 'next-intl';
+import { Select } from "antd";
+import { useRouter, usePathname } from "next/navigation";
+import { useLocale } from "next-intl";
 
 export default function LanguageSwitcher() {
   const router = useRouter();
@@ -10,7 +10,9 @@ export default function LanguageSwitcher() {
   const locale = useLocale();
 
   const onChange = (value: string) => {
-    router.push(pathname, { locale: value });
+    // Remove current locale from pathname and add new locale
+    const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, "") || "/";
+    router.push(`/${value}${pathWithoutLocale}`);
   };
 
   return (
@@ -18,8 +20,8 @@ export default function LanguageSwitcher() {
       value={locale}
       onChange={onChange}
       options={[
-        { value: 'en', label: 'EN' },
-        { value: 'th', label: 'TH' }
+        { value: "en", label: "EN" },
+        { value: "th", label: "TH" },
       ]}
       style={{ width: 80 }}
       size="small"

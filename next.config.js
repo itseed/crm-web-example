@@ -1,12 +1,21 @@
 /** @type {import('next').NextConfig} */
+const createNextIntlPlugin = require("next-intl/plugin");
+
+const withNextIntl = createNextIntlPlugin("./i18n.ts");
+
+const path = require("path");
+
 const nextConfig = {
-  experimental: {
-    appDir: true
+  env: {
+    _next_intl_trailing_slash: "false",
   },
-  i18n: {
-    locales: ['en', 'th'],
-    defaultLocale: 'en'
-  }
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@/public": path.resolve(__dirname, "public"),
+    };
+    return config;
+  },
 };
 
-module.exports = nextConfig;
+module.exports = withNextIntl(nextConfig);

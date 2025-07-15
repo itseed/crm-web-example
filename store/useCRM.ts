@@ -183,6 +183,7 @@ interface CRMStore {
   updatePipeline: (id: string, updates: Partial<Pipeline>) => void;
   addDeal: (deal: Omit<Deal, "id" | "createdAt" | "updatedAt">) => void;
   updateDeal: (id: string, updates: Partial<Deal>) => void;
+  deleteDeal: (id: string) => void;
   moveDealToStage: (dealId: string, stageId: string) => void;
 
   // Analytics
@@ -476,6 +477,12 @@ export const useCRM = create<CRMStore>()(
               ? { ...deal, ...updates, updatedAt: new Date().toISOString() }
               : deal
           ),
+        }));
+      },
+
+      deleteDeal: (id) => {
+        set((state) => ({
+          deals: state.deals.filter((deal) => deal.id !== id),
         }));
       },
 

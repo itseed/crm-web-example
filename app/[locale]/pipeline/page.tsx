@@ -15,8 +15,11 @@ import {
   InputNumber,
   Select,
   Space,
+  message,
+  Tooltip,
+  Badge,
 } from "antd";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -24,6 +27,8 @@ import {
   DollarOutlined,
   CalendarOutlined,
   UserOutlined,
+  DragOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 import { useCRM, Deal } from "../../../store/useCRM";
@@ -39,7 +44,7 @@ interface PipelineStage {
 }
 
 export default function PipelinePage() {
-  const { deals, updateDeal, addDeal, pipelines, customers } = useCRM();
+  const { deals, updateDeal, addDeal, pipelines, customers, deleteDeal } = useCRM();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [form] = Form.useForm();
@@ -84,20 +89,44 @@ export default function PipelinePage() {
     },
   ];
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
-    if (!destination) return;
+    if (!destination) {
+      message.info("การลากถูกยกเลิก");
+      return;
+    }
+
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
-    )
+    ) {
       return;
+    }
 
     const dealId = draggableId;
     const newStage = destination.droppableId;
+    const oldStage = source.droppableId;
 
+    // Update the deal stage
     updateDeal(dealId, { stage: newStage });
+
+    // Show success message
+    const deal = deals.find(d => d.id === dealId);
+    if (deal) {
+      const stageNames: Record<string, string> = {
+        lead: "Lead",
+        qualified: "Qualified",
+        proposal: "Proposal",
+        negotiation: "Negotiation",
+        "closed-won": "Closed Won",
+        "closed-lost": "Closed Lost",
+      };
+      
+      message.success(
+        `ย้าย "${deal.title}" จาก ${stageNames[oldStage]} ไปยัง ${stageNames[newStage]}`
+      );
+    }
   };
 
   const handleCreateDeal = (values: any) => {
@@ -111,8 +140,10 @@ export default function PipelinePage() {
 
     if (editingDeal) {
       updateDeal(editingDeal.id, dealData);
+      message.success("อัปเดต Deal สำเร็จ");
     } else {
       addDeal(dealData);
+      message.success("สร้าง Deal ใหม่สำเร็จ");
     }
 
     setModalVisible(false);
@@ -129,6 +160,20 @@ export default function PipelinePage() {
         : null,
     });
     setModalVisible(true);
+  };
+
+  const handleDeleteDeal = (deal: Deal) => {
+    Modal.confirm({
+      title: "ยืนยันการลบ",
+      content: `คุณต้องการลบ Deal "${deal.title}" หรือไม่?`,
+      okText: "ลบ",
+      okType: "danger",
+      cancelText: "ยกเลิก",
+      onOk: () => {
+        deleteDeal(deal.id);
+        message.success("ลบ Deal สำเร็จ");
+      },
+    });
   };
 
   // Calculate pipeline metrics
@@ -154,99 +199,136 @@ export default function PipelinePage() {
 
   const DealCard = ({ deal, index }: { deal: Deal; index: number }) => (
     <Draggable draggableId={deal.id} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          style={{
-            ...provided.draggableProps.style,
-            marginBottom: "8px",
-          }}
-        >
-          <Card
-            size="small"
+      {(provided, snapshot) => {
+        return (
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
             style={{
-              cursor: "move",
-              backgroundColor: snapshot.isDragging ? "#fff7e6" : "white",
-              border: snapshot.isDragging
-                ? "2px solid #1890ff"
-                : "1px solid #d9d9d9",
-              borderRadius: "8px",
+              ...provided.draggableProps.style,
+              marginBottom: "12px",
+              transform: snapshot.isDragging
+                ? provided.draggableProps.style?.transform
+                : "none",
             }}
-            bodyStyle={{ padding: "12px" }}
-            actions={[
-              <EditOutlined key="edit" onClick={() => handleEditDeal(deal)} />,
-              <DeleteOutlined key="delete" />,
-            ]}
           >
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  marginBottom: "8px",
-                }}
-              >
-                <Text strong style={{ fontSize: "14px" }}>
-                  {deal.title}
-                </Text>
-                <Text style={{ fontSize: "12px", color: "#666" }}>
-                  {deal.probability}%
-                </Text>
-              </div>
-
-              <div style={{ marginBottom: "8px" }}>
-                <Text
+            <Card
+              size="small"
+              style={{
+                cursor: snapshot.isDragging ? "grabbing" : "grab",
+                backgroundColor: snapshot.isDragging ? "#f0f8ff" : "white",
+                border: snapshot.isDragging
+                  ? "2px solid #1890ff"
+                  : "1px solid #d9d9d9",
+                borderRadius: "8px",
+                boxShadow: snapshot.isDragging
+                  ? "0 4px 12px rgba(24, 144, 255, 0.3)"
+                  : "0 2px 8px rgba(0, 0, 0, 0.1)",
+                transition: "all 0.2s ease",
+              }}
+              bodyStyle={{ padding: "12px" }}
+              actions={[
+                <Tooltip title="แก้ไข">
+                  <EditOutlined 
+                    key="edit" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditDeal(deal);
+                    }}
+                    style={{ color: "#1890ff" }}
+                  />
+                </Tooltip>,
+                <Tooltip title="ลบ">
+                  <DeleteOutlined 
+                    key="delete" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteDeal(deal);
+                    }}
+                    style={{ color: "#ff4d4f" }}
+                  />
+                </Tooltip>,
+              ]}
+              extra={
+                <div style={{ cursor: "grab" }}>
+                  <DragOutlined style={{ color: "#999" }} />
+                </div>
+              }
+            >
+              <div>
+                <div
                   style={{
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    color: "#52c41a",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    marginBottom: "8px",
                   }}
                 >
-                  ${deal.value.toLocaleString()}
-                </Text>
-              </div>
-
-              <div style={{ marginBottom: "8px" }}>
-                <Avatar
-                  size="small"
-                  icon={<UserOutlined />}
-                  style={{ marginRight: "6px" }}
-                />
-                <Text style={{ fontSize: "12px" }}>{deal.assignedTo}</Text>
-              </div>
-
-              {deal.expectedCloseDate && (
-                <div style={{ marginBottom: "8px" }}>
-                  <CalendarOutlined
-                    style={{ marginRight: "4px", color: "#666" }}
+                  <Text strong style={{ fontSize: "14px", lineHeight: "1.4" }}>
+                    {deal.title}
+                  </Text>
+                  <Badge 
+                    count={`${deal.probability}%`} 
+                    style={{ 
+                      backgroundColor: deal.probability >= 75 ? "#52c41a" : 
+                                     deal.probability >= 50 ? "#fa8c16" : 
+                                     deal.probability >= 25 ? "#f50" : "#d9d9d9"
+                    }}
                   />
-                  <Text style={{ fontSize: "12px", color: "#666" }}>
-                    {new Date(deal.expectedCloseDate).toLocaleDateString()}
+                </div>
+
+                <div style={{ marginBottom: "8px" }}>
+                  <Text
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      color: "#52c41a",
+                    }}
+                  >
+                    ${deal.value.toLocaleString()}
                   </Text>
                 </div>
-              )}
 
-              {deal.tags && deal.tags.length > 0 && (
-                <div>
-                  {deal.tags.slice(0, 2).map((tag) => (
-                    <Tag key={tag} size="small" style={{ fontSize: "10px" }}>
-                      {tag}
-                    </Tag>
-                  ))}
-                  {deal.tags.length > 2 && (
-                    <Tag size="small" style={{ fontSize: "10px" }}>
-                      +{deal.tags.length - 2}
-                    </Tag>
-                  )}
+                <div style={{ marginBottom: "8px" }}>
+                  <Avatar
+                    size="small"
+                    icon={<UserOutlined />}
+                    style={{ marginRight: "6px" }}
+                  />
+                  <Text style={{ fontSize: "12px" }}>{deal.assignedTo}</Text>
                 </div>
-              )}
-            </div>
-          </Card>
-        </div>
-      )}
+
+                {deal.expectedCloseDate && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <CalendarOutlined
+                      style={{ marginRight: "4px", color: "#666" }}
+                    />
+                    <Text style={{ fontSize: "12px", color: "#666" }}>
+                      {new Date(deal.expectedCloseDate).toLocaleDateString()}
+                    </Text>
+                  </div>
+                )}
+
+                {deal.tags && deal.tags.length > 0 && (
+                  <div style={{ marginTop: "8px" }}>
+                    {deal.tags.slice(0, 2).map((tag) => (
+                      <Tag key={tag} style={{ fontSize: "10px", marginBottom: "4px" }}>
+                        {tag}
+                      </Tag>
+                    ))}
+                    {deal.tags.length > 2 && (
+                      <Tag style={{ fontSize: "10px" }}>
+                        +{deal.tags.length - 2}
+                      </Tag>
+                    )}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+        );
+      }}
     </Draggable>
   );
 
@@ -333,10 +415,11 @@ export default function PipelinePage() {
             <div
               key={stage.id}
               style={{
-                minWidth: "300px",
-                backgroundColor: "#f5f5f5",
-                borderRadius: "8px",
+                minWidth: "320px",
+                backgroundColor: "#fafafa",
+                borderRadius: "12px",
                 padding: "16px",
+                border: "1px solid #f0f0f0",
               }}
             >
               <div style={{ marginBottom: "16px", textAlign: "center" }}>
@@ -352,25 +435,44 @@ export default function PipelinePage() {
               </div>
 
               <Droppable droppableId={stage.id}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    style={{
-                      minHeight: "400px",
-                      backgroundColor: snapshot.isDraggingOver
-                        ? "#e6f7ff"
-                        : "transparent",
-                      borderRadius: "4px",
-                      padding: "8px",
-                    }}
-                  >
-                    {stage.deals.map((deal, index) => (
-                      <DealCard key={deal.id} deal={deal} index={index} />
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
+                {(provided, snapshot) => {
+                  return (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      style={{
+                        minHeight: "400px",
+                        backgroundColor: snapshot.isDraggingOver
+                          ? "#e6f7ff"
+                          : "transparent",
+                        borderRadius: "8px",
+                        padding: "8px",
+                        border: snapshot.isDraggingOver
+                          ? "2px dashed #1890ff"
+                          : "2px dashed transparent",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      {stage.deals.map((deal, index) => (
+                        <DealCard key={deal.id} deal={deal} index={index} />
+                      ))}
+                      {provided.placeholder}
+                      
+                      {stage.deals.length === 0 && (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "40px 20px",
+                            color: "#999",
+                            fontSize: "14px",
+                          }}
+                        >
+                          ไม่มี deals ในขั้นตอนนี้
+                        </div>
+                      )}
+                    </div>
+                  );
+                }}
               </Droppable>
             </div>
           ))}
